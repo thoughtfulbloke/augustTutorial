@@ -281,7 +281,7 @@ If you want all the columns and only some rows, you can leave the space after th
 Make a dataset called clean with no blank entries for the column after and only numeric columns
 
 ```{r}
-clean <- pulse[complete.cases(pulse),]
+clean <- pulse[,]
 ```
 
 ## Making graphs
