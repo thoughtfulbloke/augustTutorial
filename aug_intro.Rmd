@@ -1,0 +1,431 @@
+---
+title: "R - Introductory session"
+author: "David Hood, IT Training and Development, University of Otago"
+date: "25th July 2018"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r rmarkdown_setup, include=FALSE}
+# the eval=TRUE setting means it runs the code when making a web page 
+knitr::opts_chunk$set(eval = TRUE)
+```
+
+## Notes structure
+
+This tutorial is an introduction to the R lanaguage for data analysis, using a form of document called an Rmarkdown. This form of document is a mix of human text and R code. The code is in chunks marked with three backtick symbols ` at the start and end of each chunk. The backtick lines are border areas, and the code goes between them.
+
+To run the code open the document in RStudio, then for individual code chunks and press the green triangle in the top right of the chunk. If the chunk depends on loading libraries, loading data, or transforming data from earlier, you will need to run the earlier chunks first.
+
+You can also use the **Knit** button at the top of the document to turn the document and the code into a finshed webpage or Word document. The document will only successfully knit if there are no errors in the code chunks.
+
+** Exercise **
+
+Try knitting this document to a webpage
+
+## Needed libraries
+
+As well as needing R and Rstudio installed, this tutorial uses the added helper libraries *dplyr*, *ggplot*, and *rmarkdown* these may be installed already, put to install them, you can enter commands directly into the console part of the screen. If you type 
+
+install.packages("dplyr") and press enter or return
+
+the dplyr helper library will be installed from the internet.
+
+## Functions
+
+R is a language of functions, and `install.packages` is an example. With a function, you feed in some ingrediants (in this case the name of the library you want to install, with quote marks because the name is text) and the function installs the library from the internet
+
+*Exercise*
+
+Install these libraries by typing the commands in console:
+
+install.packages("dplyr")
+
+install.packages("ggplot2")
+
+install.packages("rmarkdown")
+
+## Console vs. Rmarkdown
+
+Typing commands in the console runs them. but it does not create a record that you can come back to and do more work with in the future. To create code you can reuse, add the code to code chunks in the rmarkdown document, and run the code chunk.
+
+This chunk makes libraries (installed packages) we are going to use active, by having it in the document we can make sure those libraries are active when we use functions from them later.
+
+```{r}
+library("dplyr")
+library("ggplot2")
+```
+
+## Project folder 
+
+R, like other data analysis programs, has the idea of a project folder that you are working on. When you knit a rmarkdown document, the working directory (the project folder) is the folder your rmarkdown document is in. When you run a code chunk in console, the console can be set to a different location. To make sure everything is talking about the same folder, with the rmarkdown document open use the **Session** menu, **Set Working Directory** submenu, **To Source File Location** command. 
+
+## Reading in the data
+
+Before using any professional level analysis tool, your life is easiest if the data you is using is well organised. For data in a spreadsheet, this means:
+
+* A rectangular block of data. It may contain spaces for missing entries, but no fully blank rows or columns.
+* Columns are variables. These are the things that are potential important in your analysis. Each column contains one type of data (numbers, or text, or dates)
+* Rows are observations. Individual entries you are keeping track of
+* One row of headings at the top of the sheet, and each column has a heading.
+
+By saving a well organised data set as a csv file, it is easy to move into other analysis programs (including R). However, any formatting that you have applied to the spreadsheet (number of decimal places, date formatting) will be what is in the csv. Any dates are best formatted as 4 digit years and numeric months. Remove any dollar signs, commas, and spaces within numeric values.
+
+You can read other kinds of data into R, but often you will need to install and load a package that understands that kind of file.
+
+In the same folder as the rmarkdown document is a csv file called "pulse.csv". To read it in we decide the name we wish to refer to it by, and build an arrow to carry the results of the function that reads in the data to that name.
+
+```{r}
+pulse <- read.csv("pulse.csv")
+```
+
+When the data is read in, it will appear in the Environment Tab (by default in the upper right) in RStudio.
+
+## Text vs objects
+
+The name of the file was a piece of text, so needed to be in quotes, it was stored in pulse, which exists under its own right and did not need to be in quotes. As it exists as an object in R, when we go to use pulse in other things, it does not need to be in quotes.
+
+```{r}
+summary(pulse)
+```
+
+## The structure of the data
+
+The kind of of questions you can answer about your data depend on the kind of data it is. You can only do maths on numbers. When R read in the data, it assessed the contents of the columns. You can see the details of the structure of the data with the str() command.
+
+*Exercise*
+
+Add the code for reading the structure of the pulse data.
+
+```{r}
+
+```
+
+There are two types of text in RStudio, factors and characters. Factors are well organised text which has a (by default alphabetical) ranked order. Characters are disorganised felxible text. It is easy to graph and group factors but hard to change them. It is easy to change with characters but hard to graph them.
+
+## Changing function behaviour
+
+Using the metaphor of a function being a kitchen suasage machine or spice grinder, into which we feed ingrediants through the funnel (parentheses) and the machine grinds them into a result, we could assume by adding or changing ingrediants.
+
+To find out what all the possible ingrediants are, you can look up the function in the Help tab.
+
+*Exercise*
+
+look up read.csv in Help
+
+Sometimes the help will also refer you to other functions, if the function you are intending to use is based on another.
+
+As you type, when you type a comma to add a setting to a function, you can then immediately press the tab key to get a shortlist of functions. In general, you set a setting to either a number, text in quote marks, or TRUE or FALSE in uppercase.
+
+*Exercise*
+
+Go back to the line of code to read in the data and add the setting `stringsAsFactors = FALSE`
+
+Repeat the str() command to see how the data has changed.
+
+## Using functions with specific columns
+
+As well as adding settings to reading in data commands, we can deliberately change data of one column to another type. As we only want to change one column, rather than feeding the entire dataset we will use the \$ as the reaching inside symbol, to pick the dob column out of the data. If we decide to store our converted column as a new column in the data we can use the \$ to reach inside the data and use a new name (names should only have letters, numbers, underscores, and full stops in the name) like birth
+
+```{r}
+pulse$birth <- as.Date(pulse$dob)
+```
+
+When you ran that command, it created an extra column (variable) in the data, and if you look in the Environment tab in RStudio, the number of variables in the data increased by one.
+
+Just like making calculated columns through functions, you can make calculated columns through maths operations. The calculation:
+
+
+```{r}
+pulse$midrace_estimate <- pulse$before + pulse$after / 2
+```
+
+Contains a classic oder of operation error - multiplication and divisions happen before subtraction and addition. Just like at school, to control the order of operation add parentheses to make it clear what happens in which order.
+
+*Exercise*
+
+Go back to the calculation above and add parentheses to make sure pulse\$before is added to pulse\$after before dividing by two.
+
+With data analyssi languages, you are not making a calculations by clicking on individual cells like in Excel. Instead, you are writing the calculation on the assumption it will repeat the assumption for every row in the column, so `(pulse$before + pulse$after) / 2` is saying for every entry in the before column add it to the equivalent entry in the after column, then divide by two.
+
+## Missing values 
+
+In the Environment tab in Rstudio, you can click on the spreadsheet icon to see the current state of your data in a new tab. 
+
+*Exercise*
+
+View your data
+
+If you do view this data, there is a missing `after` entry in row 6 which appears as the faded letters NA (not available), so the midrace_estimate calculation for this also NA. This reflects the fundamental property that if you do maths that combines a known and unknown value, the answer is always an unknown value. 
+
+Some functions have settings (arguments) that will remove blanks, but at other times you need to deliberately remove blanks.
+
+## Subsetting data
+
+If you draw on a column of data, you are drawing on every row in the column so `pulse$name` displays every name in the data.
+
+```{r}
+pulse$name
+```
+
+To work with only some of a column use square brackets [].
+
+You can put a row number to pick out one entry
+
+```{r}
+pulse$name[12]
+```
+
+You can put a row number range to pick out a set of entries (these numbers are inclusive).
+
+```{r}
+pulse$name[12:20]
+```
+
+You can use the c() function (combine), to make a list of the rows you want
+
+```{r}
+pulse$name[c(12:20,5,8,3)]
+```
+
+You can also identify entries that match a test. Logical tests use symbols like == (test if equal to), > (test if greater than), >= (test if greater than or equal to), < (test if less than), <= (test if less than or equal to), %in% (test if something is in a list). The tests can be made more complex by using & (and), | (or), and ! (not).
+
+Just like with numeric calculations, parenthese can control the order of operation.
+
+To find all male names
+
+```{r}
+pulse$name[pulse$gender == "M"]
+```
+
+
+To find the name of males with a height greater than 175 cm 
+
+```{r}
+pulse$name[pulse$gender == "M" & pulse$height > 175]
+```
+
+
+To find the name of males with a height greater than 175 cm along with females with a height greater than 170 cm
+
+```{r}
+pulse$name[(pulse$gender == "M" & pulse$height > 175) | (pulse$gender == "M" & pulse$height > 175)]
+```
+
+To find the name of those neither males with a height greater than 175 cm nor females with a height greater than 170 cm
+
+
+```{r}
+pulse$name[((pulse$gender == "M" & pulse$height > 175) | (pulse$gender == "M" & pulse$height > 175))]
+```
+
+*Exercise*
+
+Find the name of those with a height less than 160 cm
+
+```{r}
+
+```
+
+*Exercise*
+
+Find the name of those with a height between 163 and 165 cm
+
+```{r}
+
+```
+
+*Exercise*
+
+Given max() is a function that finds the largest in a group, find the name of the tallest person
+
+```{r}
+
+```
+
+*Exercise*
+
+Find the "before" pulses of male triathletes who are taller than the tallest female
+
+```{r}
+
+```
+
+## Dealing with blank entries
+
+As missing values are not available, we cannot do a direct comparison to the contents (because they are unknown). Instead we can use the is.na() function to find which rows are missing an entry. For example, to find the name of the person missing the after triathlon pulse entry the code is 
+
+```{r}
+pulse$name[is.na(pulse$after)]
+```
+
+Often the goal of identifying the missing values is to remove them, which is done by adding the not ! in front ofthe is.na()
+
+## Subsetting rows and columns
+
+Sometimes, rather than picking out entries from a single column, you want to subset both rows and columns in your data. This is a strategy commonly used to create a set of data containing specified rows and columns for an analysis.
+
+When subsetting entries from a single column (1 dimension), you only need to specify the rows you want. When dealing with rows and columns, you have to specify the columns as well in the form [rows you want , columns you want]. The columns can be specified as:
+
+* a numeric range pulse[!is.na(pulse$after) , 3:7]
+* using the `c()` function, which combines items into a group, pulse[!is.na(pulse$after) , c(1, 5:7, 3)]
+* using the `c()` function with column names pulse[!is.na(pulse$after) , c("height", "width", "before", "after")]
+
+If you want all the rows and only some columns, you can leave the space before the comma empty pulse[ , c("height", "width", "before", "after")].
+
+If you want all the columns and only some rows, you can leave the space after the comma empty pulse[!is.na(pulse$after) , ].
+
+*Exercise*
+
+Make a dataset called clean with no blank entries for the column after and only numeric columns
+
+```{r}
+clean <- pulse[complete.cases(pulse),]
+```
+
+## Making graphs
+
+Making graphs with the basic plotting tools in R lets you plot whatever you like, adding settings to a plot function to get it to behave differently.
+
+```{r}
+barplot(height=c(3,5), names.arg = c("cat", "dog"))
+```
+
+By adding settings, the details of which can be read in the help, the graph changes
+
+```{r}
+barplot(height=c(3,5), names.arg = c("cat", "dog"), col = c("blue", "green"))
+```
+
+Basic plot functions are functions like plot(), barplot(), boxplot(), & hist()
+
+## ggplot
+
+Another way of making graphs is to use ggplot, the helper library we loaded earlier with the `library(ggplot)` command. This way of making graphs is based much more around the idea that we have a block of data we want to make a graph of. In a ggplot() function need to tell ggplot what data to use when making a graph, then we need to use the aes() function, the aesthetics, to say what job a particular column is doing when making a graph. The minimum other part we need to provide, added with a + sign, is the kind of graph we are making (known as the geometry)
+
+```{r}
+ggplot(data=pulse, aes(x=height,y=weight, colour=gender)) + geom_point()
+```
+
+Other graph setting are added with more plus signs and more functions. As each of these are a function they have their own settings that can be adjusted
+
+```{r}
+ggplot(data=pulse, aes(x=height,y=weight, colour=gender)) + geom_point(size=0.4) + 
+  ylim(0,70)
+```
+
+The overall look is controlled by the theme functions
+
+```{r}
+ggplot(data=pulse, aes(x=height,y=weight, colour=gender)) + geom_point(size=0.4) + 
+  theme_minimal()
+```
+
+Colours are controlled by scale functions
+
+```{r}
+ggplot(data=pulse, aes(x=height,y=weight, colour=gender)) + geom_point(size=0.4) +
+  scale_color_manual(values=c("orange", "red"))
+```
+
+If you have a graph with categories, as well as using colours, you can use facets to make a different graph for each category.
+
+```{r}
+ggplot(data=pulse, aes(x=height,y=weight, colour=gender)) + geom_point(size=0.4) +
+  scale_color_manual(values=c("orange", "red")) + facet_wrap( ~ gender, ncol=2)
+```
+The tilda symbol ~ should be read as dependant on or controlled by.
+
+As well as the help, for a quick reference see the ggplot Data vizualisation cheat sheet 
+
+http://rstudio.com/resources/cheatsheets/
+
+*Exercise*
+
+Try and make a boxplot graph with a separate boxplot of the height for each gender. To do this you are going to need to figure out what geom is a boxplot and what job the columns are doing. Once you have the basic graph working try customising the graph with added functions. Finally add a second jitter geom to the graph as well as the boxplot.
+
+```{r}
+
+```
+
+
+
+## Function results
+
+For complex analyses you are normally applying a prepared set of data to a function that runs the analysis. If you are following an example with your own data, a good strategy is to use str() to confirm your data is organised in the same way as the example data, so you can use the same analysis.
+
+Just like working with data frames of data, you can use a function then store the result, even if it is a complex thing. So, for example, conducting a paired t-test to determine if participating in a triathalon changes your pulse might be 
+
+```{r}
+result <- t.test(x=clean$before, y=clean$after, data=clean, paired=TRUE)
+```
+
+Just like with data, you can call the result by its name and get the basic output
+
+
+```{r}
+result
+```
+
+Just like with data, you can use a `summary()` command to get a summary
+
+
+```{r}
+summary(result)
+```
+In this case, the summary is not useful, but it can be for other function results.
+
+Just like with data, you can see what parts make up the result with a `str()` command
+
+```{r}
+str(result)
+```
+
+And once you know the structure, just like with data you can reach inside to parts using the $ symbol
+
+```{r}
+result$p.value
+```
+
+And treat it like any other data.
+
+## dplyr
+
+Another major new helper library is dplyr, which lets you continiously flow data through a series of steps. If you are reading examples of how to analyse data on the internet and see `%>%`, that symbol is the piping operator that carries the data to the next step in the process.
+
+```{r}
+pulse %>%
+  filter(!is.na(after)) %>%
+  select(gender, height) %>%
+  group_by(gender) %>%
+  summarise(meanht = mean(height))
+```
+
+This series of steps can flow into ggplot as a data source
+
+```{r}
+pulse %>%
+  filter(!is.na(after)) %>%
+  select(gender, height) %>%
+  group_by(gender) %>%
+  summarise(meanht = mean(height)) %>%
+  ggplot(aes(x=gender, y=meanht)) + geom_col()
+```
+
+## Some R installation advice
+
+### Windows:
+
+When Installing R on Windows, you will have the fewest problems if you create an R folder at the top level of the computer (normally the C: drive) and install R into that folder. As well as R, if you are doing more technical things with R you should install RTools
+
+https://cran.r-project.org/bin/windows/Rtools/
+
+### Mac:
+
+If doing more technical things with R, you should install the Mac command line tools. Either install xcode from the app store then open xcode to install the command line tools, or open the Terminal application and type `xcode-select --install`
+then click the blue install button. Just like with Windows, there are some other extra installers you should consider from the Mac r installers webpage
+
+### RStudio configuration
+Your life will be most trouble free if RStudio does not try to save work between session- so each start up is fresh. In RStudio – Tools menu – Options command, in the General Tab, remove the tick from Restore .RData into workspace at startup, and set Save workspace to .Rdata on exit to Never. 
+
