@@ -106,7 +106,7 @@ There are two types of text in RStudio, factors and characters. Factors are well
 
 ## Changing function behaviour
 
-Using the metaphor of a function being a kitchen suasage machine or spice grinder, into which we feed ingrediants through the funnel (parentheses) and the machine grinds them into a result, we could assume by adding or changing ingrediants.
+Using the metaphor of a function being a kitchen sausage machine or spice grinder, into which we feed ingrediants through the funnel (parentheses) and the machine grinds them into a result, we could assume by adding or changing ingrediants.
 
 To find out what all the possible ingrediants are, you can look up the function in the Help tab.
 
